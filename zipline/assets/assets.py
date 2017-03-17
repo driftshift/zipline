@@ -1161,6 +1161,10 @@ class AssetFinder(object):
         matches = []
         missing = []
 
+        # If the input is a ContinuousFuture just return it as-is.
+        if isinstance(asset_convertible_or_iterable, ContinuousFuture):
+            return asset_convertible_or_iterable
+
         # Interpret input as scalar.
         if isinstance(asset_convertible_or_iterable, AssetConvertible):
             self._lookup_generic_scalar(
@@ -1187,7 +1191,10 @@ class AssetFinder(object):
             )
 
         for obj in iterator:
-            self._lookup_generic_scalar(obj, as_of_date, matches, missing)
+            if isinstance(obj, ContinuousFuture):
+                matches.append(obj)
+            else:
+                self._lookup_generic_scalar(obj, as_of_date, matches, missing)
         return matches, missing
 
     def map_identifier_index_to_sids(self, index, as_of_date):
